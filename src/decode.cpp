@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +11,6 @@
 #include "unicode/uclean.h"
 
 using namespace icu;
-
 
 const char *fileName;
 int         fileLen;
@@ -45,10 +46,14 @@ void readFile(const char *name) {
     fclose(file);
 
     int32_t        signatureLength;
-    const char *   charDataStart = charBuf;
+    const char *   charDataStart = charBuf; 
+    //const char   charDataStart[3] = {'\xEF', '\xBB', '\xBF'}; for test
     UErrorCode     status        = U_ZERO_ERROR;
     const char*    encoding      = ucnv_detectUnicodeSignature(
                            charDataStart, rawFileLen, &signatureLength, &status);
+    
+    std::cout << encoding << std::endl;
+    
     if (U_FAILURE(status)) {
         fprintf(stderr, "ugrep: ICU Error \"%s\" from ucnv_detectUnicodeSignature()\n",
             u_errorName(status));
@@ -95,5 +100,6 @@ void readFile(const char *name) {
 }
 
 auto main() -> int {
+  readFile("test.txt");
   return -1;
 }

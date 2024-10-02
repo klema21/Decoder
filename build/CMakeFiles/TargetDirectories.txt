@@ -1,3 +1,0 @@
-/home/klema/projects/Decoder/build/CMakeFiles/decoder.dir
-/home/klema/projects/Decoder/build/CMakeFiles/edit_cache.dir
-/home/klema/projects/Decoder/build/CMakeFiles/rebuild_cache.dir
