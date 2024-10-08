@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include "unicode/regex.h"
 #include "unicode/ucnv.h"
 #include "unicode/uclean.h"
+#include "unicode/ucsdet.h"
 
 using namespace icu;
 
@@ -18,6 +20,16 @@ int         fileLen;
 char16_t *ucharBuf = nullptr;
 
 char *charBuf = nullptr;
+
+void charSetDetection() {
+    UCharsetDetector *csd;
+    //const UCharsetDetector *ucm;
+    static char buffer[10] = {"abcabcabc"};
+    int32_t inputLength = 10; // length of the input text
+    UErrorCode status = U_ZERO_ERROR;
+    ucsdet_setText(csd, buffer, inputLength, &status);
+    auto ucm = ucsdet_detect(csd, &status);
+}
 
 void readFile(const char *name) {
 
@@ -101,5 +113,6 @@ void readFile(const char *name) {
 
 auto main() -> int {
   readFile("test.txt");
+  charSetDetection();
   return -1;
 }
