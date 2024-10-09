@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cstdio>
+#include <string>
+#include <cassert>
+
 #include "unicode/utypes.h"
 #include "unicode/ustring.h"
 #include "unicode/regex.h"
@@ -29,6 +33,36 @@ void charSetDetection() {
     UErrorCode status = U_ZERO_ERROR;
     ucsdet_setText(csd, buffer, inputLength, &status);
     auto ucm = ucsdet_detect(csd, &status);
+}
+
+void decodeFile(const char *name) {
+        using namespace std;
+
+        UErrorCode u_glob_status = U_ZERO_ERROR;
+        char buf[4096];
+        FILE* fp(0);
+        size_t read=0;
+        string data;
+
+        u_init(&u_glob_status);
+        fp = fopen("../src/test.txt", "rb");
+
+        assert(U_SUCCESS(u_glob_status));
+        assert(fp != 0);
+
+        while(0 < (read = fread(buf, 1, 4096, fp)))
+                data.append(buf, read);
+        fclose(fp);
+        
+        UErrorCode uerr = U_ZERO_ERROR;
+        UCharsetDetector *ucd = ucsdet_open ( &uerr );
+        ucsdet_setText(ucd, data.c_str(), data.size(), &uerr);
+        UCharsetMatch const * match = ucsdet_detect(ucd, &uerr);
+        printf("Name: %s\n", ucsdet_getName(match, &uerr));
+        printf("Lang: %s\n", ucsdet_getLanguage(match, &uerr));
+        printf("Confidence: %u\n", ucsdet_getConfidence(match, &uerr));
+        ucsdet_close(ucd);
+        u_cleanup(); // keep valgrind happy!!
 }
 
 void readFile(const char *name) {
@@ -112,7 +146,6 @@ void readFile(const char *name) {
 }
 
 auto main() -> int {
-  readFile("test.txt");
-  charSetDetection();
+  decodeFile("test.txt");
   return -1;
 }
