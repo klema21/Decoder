@@ -14,10 +14,16 @@ project(Decoder VERSION 1.0)
 #find_package(ICU 4.4 COMPONENTS io i18n REQUIRED)
 
 #include_directories(${ICU_INCLUDE_DIRS})
+include_directories(src)
 
 add_subdirectory(external/icu-cmake)
 
-add_executable(decoder src/decode.cpp)
+add_executable(decoder 
+  test_files/demo.cpp
+  src/general_decoder.hpp
+  src/icu_decoder_impl.hpp
+  #src/general_decoder.cc
+)
 
 #target_link_libraries(decoder external/icu-cmake)
 target_link_libraries(decoder icu)

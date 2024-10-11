@@ -38,31 +38,7 @@ void charSetDetection() {
 void decodeFile(const char *name) {
         using namespace std;
 
-        UErrorCode u_glob_status = U_ZERO_ERROR;
-        char buf[4096];
-        FILE* fp(0);
-        size_t read=0;
-        string data;
 
-        u_init(&u_glob_status);
-        fp = fopen("../src/test.txt", "rb");
-
-        assert(U_SUCCESS(u_glob_status));
-        assert(fp != 0);
-
-        while(0 < (read = fread(buf, 1, 4096, fp)))
-                data.append(buf, read);
-        fclose(fp);
-        
-        UErrorCode uerr = U_ZERO_ERROR;
-        UCharsetDetector *ucd = ucsdet_open ( &uerr );
-        ucsdet_setText(ucd, data.c_str(), data.size(), &uerr);
-        UCharsetMatch const * match = ucsdet_detect(ucd, &uerr);
-        printf("Name: %s\n", ucsdet_getName(match, &uerr));
-        printf("Lang: %s\n", ucsdet_getLanguage(match, &uerr));
-        printf("Confidence: %u\n", ucsdet_getConfidence(match, &uerr));
-        ucsdet_close(ucd);
-        u_cleanup(); // keep valgrind happy!!
 }
 
 void readFile(const char *name) {
@@ -145,7 +121,38 @@ void readFile(const char *name) {
     fileLen = destCap;
 }
 
-auto main() -> int {
+class ICU_Decoder_Impl {
+public:
+    void Decode(const char * path) {
+        UErrorCode u_glob_status = U_ZERO_ERROR;
+        char buf[4096];
+        FILE* fp(0);
+        size_t read=0;
+        std::string data;
+
+        u_init(&u_glob_status);
+        fp = fopen(path, "rb");
+
+        assert(U_SUCCESS(u_glob_status));
+        assert(fp != 0);
+
+        while(0 < (read = fread(buf, 1, 4096, fp)))
+                data.append(buf, read);
+        fclose(fp);
+        
+        UErrorCode uerr = U_ZERO_ERROR;
+        UCharsetDetector *ucd = ucsdet_open ( &uerr );
+        ucsdet_setText(ucd, data.c_str(), data.size(), &uerr);
+        UCharsetMatch const * match = ucsdet_detect(ucd, &uerr);
+        printf("Name: %s\n", ucsdet_getName(match, &uerr));
+        printf("Lang: %s\n", ucsdet_getLanguage(match, &uerr));
+        printf("Confidence: %u\n", ucsdet_getConfidence(match, &uerr));
+        ucsdet_close(ucd);
+        u_cleanup(); // keep valgrind happy!!
+    };
+};
+
+/*auto main() -> int {
   decodeFile("test.txt");
   return -1;
-}
+}*/
