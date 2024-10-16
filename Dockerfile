@@ -1,29 +1,34 @@
-FROM gcc:11.3 as build
+FROM gcc:latest as build
 
 RUN apt update && \
     apt install -y \
-      python3-pip \
+      libgtest-dev \
       cmake \
+      libicu-dev \
     && \
-    pip3 install conan
-
-COPY conanfile.txt /app/
-RUN mkdir /app/build && cd /app/build && \
-    conan install .. --build=missing
-
-COPY ./src /app/src
-COPY CMakeLists.txt /app/
-
-RUN cd /app/build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    git submodule update --init --recursive \
+    cmake -DCMAKE_BUILD_TYPE=Release /usr/src/gtest && \
     cmake --build .
 
-FROM ubuntu:22.04 as run
+# would be here after fix conanfile
+#COPY conanfile.txt /app/
+#RUN mkdir /app/build && cd /app/build && \
+#    conan install .. --build=missing
 
-RUN groupadd -r www && useradd -r -g www www
-USER www
+ADD ./src /app/src
 
-COPY --from=build /app/build/bin/game_server /app/
-COPY ./data /app/data
+WORKDIR /app/build
 
-ENTRYPOINT ["/app/game_server", "/app/data/config.json"]
+RUN cmake ../src && \
+    cmake --build .
+
+FROM ubuntu:latest
+
+RUN groupadd -r sample && useradd -r -g sample sample
+USER sample
+
+WORKDIR /app
+
+COPY --from=build /app/build/hello_world_app .
+
+ENTRYPOINT ["./hello_world_app"]
